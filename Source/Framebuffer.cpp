@@ -3,6 +3,11 @@
 Framebuffer::Framebuffer(Renderer* renderer, int width, int height) {
     this->width = width;
     this->height = height;
+
+    texture = SDL_CreateTexture(renderer->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+
+    pitch = width * sizeof(color_t);
+    buffer = new uint8_t[pitch * height];
 }
 
 Framebuffer::~Framebuffer() {
