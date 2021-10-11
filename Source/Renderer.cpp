@@ -37,5 +37,5 @@ void Renderer::CopyBuffer(Framebuffer* buffer) {
 }
 
 void Renderer::Present() {
-
+	SDL_RenderPresent(renderer);
 }

@@ -25,9 +25,20 @@ int main(int, char**) {
 
 		framebuffer->Clear(color_t{ 0, 0, 0, 0 });
 
-		for (int i = 0; i < 100; i++) {
+		/*for (int i = 0; i < 100; i++) {
 			framebuffer->DrawPoint(rand() % framebuffer->width, rand() % framebuffer->height, { 255, 255, 255, 255 });
 		}
+
+		for (int i = 0; i < 10; i++) {
+			framebuffer->DrawRect(rand() % framebuffer->width, rand() % framebuffer->height, 10, 10, {  });
+		}
+
+		for (int i = 0; i < 100; i++) {
+			framebuffer->DrawLine(framebuffer->width >> 1, framebuffer->height >> 1, rand() % framebuffer->width, rand() % framebuffer->height, {  });
+		}*/
+
+		framebuffer->DrawSimpleCurve(200, 200, 300, 100, 5, { 255, 255, 255, 255 });
+		framebuffer->DrawQuadraticCurve(200, 200, 300, 100, 400, 200, 5, { 255, 255, 255, 255 });
 
 		framebuffer->Update();
 
