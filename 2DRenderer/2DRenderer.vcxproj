@@ -152,11 +152,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Source\Framebuffer.cpp" />
+    <ClCompile Include="..\Source\Image.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
+    <ClCompile Include="..\Source\PostProcess.cpp" />
     <ClCompile Include="..\Source\Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\ColorBuffer.h" />
     <ClInclude Include="..\Source\Framebuffer.h" />
+    <ClInclude Include="..\Source\Image.h" />
+    <ClInclude Include="..\Source\PostProcess.h" />
     <ClInclude Include="..\Source\Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

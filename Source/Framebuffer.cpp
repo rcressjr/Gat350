@@ -1,38 +1,38 @@
 #include "Framebuffer.h"
+#include "Image.h"
 
 //#define SLOPE
-#define DDA
-//#define BRESENHAM
+//#define DDA
+#define BRESENHAM
 
 Framebuffer::Framebuffer(Renderer* renderer, int width, int height) {
-    this->width = width;
-    this->height = height;
+    colorBuffer.width = width;
+    colorBuffer.height = height;
 
-    texture = SDL_CreateTexture(renderer->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    texture = SDL_CreateTexture(renderer->renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 
-    pitch = width * sizeof(color_t);
-    buffer = new uint8_t[pitch * height];
+    colorBuffer.pitch = colorBuffer.width * sizeof(color_t);
+    colorBuffer.data = new uint8_t[colorBuffer.pitch * height];
 }
 
 Framebuffer::~Framebuffer() {
     SDL_DestroyTexture(texture);
-    delete[] buffer;
 }
 
 void Framebuffer::Update() {
-    SDL_UpdateTexture(texture, nullptr, buffer, pitch);
+    SDL_UpdateTexture(texture, nullptr, colorBuffer.data, colorBuffer.pitch);
 }
 
 void Framebuffer::Clear(const color_t& color) {
-    for (int i = 0; i < width * height; i++) {
-        ((color_t*)buffer)[i] = color;
+    for (int i = 0; i < colorBuffer.width * colorBuffer.height; i++) {
+        ((color_t*)colorBuffer.data)[i] = color;
     }
 }
 
 void Framebuffer::DrawPoint(int x, int y, const color_t& color) {
-    if (x < 0 || x >= width || y < 0 || y >= height) return;
+    if (x < 0 || x >= colorBuffer.width || y < 0 || y >= colorBuffer.height) return;
 
-    ((color_t*)buffer)[x + y * width] = color;
+    ((color_t*)colorBuffer.data)[x + y * colorBuffer.width] = color;
 }
 
 void Framebuffer::DrawRect(int x, int y, int rect_width, int rect_height, const color_t& color) {
@@ -89,27 +89,73 @@ void Framebuffer::DrawLine(int x1, int y1, int x2, int y2, const color_t& color)
     }
 
 #elif defined(BRESENHAM)
+    bool steep = std::abs(dx) < std::abs(dy);
+    
+    if (steep) {
+        std::swap(x1, y1);
+        std::swap(x2, y2);
+    }
+
+    if (x1 > x2) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
+
+    dx = x2 - x1;
+    dy = std::abs(y2 - y1);
+
     int error = dx / 2;
     int ystep = (y1 < y2) ? 1 : -1;
 
     for (int x = x1, y = y1; x <= x2; x++) {
         (steep) ? DrawPoint(y, x, color) : DrawPoint(x, y, color);
+
+        error -= dy;
+        if (error < 0) {
+            y += ystep;
+            error += dx;
+        }
     }
 
 
 #endif
 }
 
-void Framebuffer::DrawCircle(int x, int y, int radius, const color_t& color) {
-    
+void Framebuffer::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color) {
+    DrawLine(x1, y1, x2, y2, color);
+    DrawLine(x2, y2, x3, y3, color);
+    DrawLine(x3, y3, x1, y1, color);
 }
 
-void Framebuffer::DrawTriangle(int x1, int y1, int x2, int y2, int x3, int y3, const color_t& color)
-{
-    // connect the points to form a triangle
-    // draw line from x1,y1 -> x2,y2
-    // draw line from ?? -> ??
-    // draw line from ?? -> ??
+void Framebuffer::DrawCircle(int x, int y, int radius, const color_t& color) {
+    int cx = 0;
+    int cy = radius;
+    int d = 3 - 2 * radius;
+
+    DrawCircleOctants(x, y, cx, cy, color);
+    while (cy >= cx) {
+        cx++;
+        if (d > 0) {
+            cy--;
+            d = d + 4 * (cx - cy) + 10;
+        }
+        else {
+            d = d + 4 * cx + 6;
+        }
+        DrawCircleOctants(x, y, cx, cy, color);
+    }
+}
+
+void Framebuffer::DrawCircleOctants(int cx, int cy, int x, int y, const color_t& color) {
+    DrawPoint(cx + x, cy + y, color);
+    DrawPoint(cx + x, cy - y, color);
+    DrawPoint(cx - x, cy + y, color);
+    DrawPoint(cx - x, cy - y, color);
+
+    DrawPoint(cx + y, cy + x, color);
+    DrawPoint(cx + y, cy - x, color);
+    DrawPoint(cx - y, cy + x, color);
+    DrawPoint(cx - y, cy - x, color);
 }
 
 void Framebuffer::DrawSimpleCurve(int x1, int y1, int x2, int y2, int steps, const color_t& color) {
@@ -135,14 +181,59 @@ void Framebuffer::DrawQuadraticCurve(int x1, int y1, int x2, int y2, int x3, int
         float t1 = i * dt;
         float t2 = (i + 1) * dt;
 
-        float a = static_cast<float>(pow((1.0f - t1), 2.0f));
-        float b = 2.0f * (1.0f - t1) * t1;
-        float c = static_cast<float>(pow(t1, 2.0f));
+        float a1 = (float)(pow((1.0f - t1), 2.0f));
+        float b1 = 2.0f * (1.0f - t1) * t1;
+        float c1 = (float)(pow(t1, 2.0f));
 
-        int sx = static_cast<int>(a * x1 + b * x2 + c * x3);
-        int sy = static_cast<int>(a * y1 + b * y2 + c * y3);
+        float a2 = (float)(pow((1.0f - t2), 2.0f));
+        float b2 = 2.0f * (1.0f - t2) * t2;
+        float c2 = (float)(pow(t2, 2.0f));
 
-        DrawPoint(sx, sy, color);
+        int sx1 = (int)(a1 * x1 + b1 * x2 + c1 * x3);
+        int sy1 = static_cast<int>(a1 * y1 + b1 * y2 + c1 * y3);
+
+        int sx2 = static_cast<int>(a2 * x1 + b2 * x2 + c2 * x3);
+        int sy2 = static_cast<int>(a2 * y1 + b2 * y2 + c2 * y3);
+
+        DrawLine(sx1, sy1, sx2, sy2, color);
+    }
+}
+
+void Framebuffer::DrawCubicCurve(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, int steps, const color_t& color) {
+    float dt = 1.0f / steps;
+
+    for (int i = 0; i <= steps; i++) {
+        float t1 = i * dt;
+        float t2 = (i + 1) * dt;
+
+        float a1 = (float)pow((1.0f - t1), 3.0f);
+        float b1 = 3.0f * (float)pow((1.0f - t1), 2.0f) * t1;
+        float c1 = 3.0f * (1.0f - t1) * (float)(pow(t1, 2.0f));
+        float d1 = (float)(pow(t1, 3.0f));
+
+        float a2 = (float)pow((1.0f - t2), 3.0f);
+        float b2 = 3.0f * (float)pow((1.0f - t2), 2.0f) * t2;
+        float c2 = 3.0f * (1.0f - t2) * (float)pow(t2, 2.0f);
+        float d2 = (float)pow(t2, 3.0f);
+
+        int sx1 = (int)(a1 * x1 + b1 * x2 + c1 * x3 + d1 * x4);
+        int sy1 = (int)(a1 * y1 + b1 * y2 + c1 * y3 + d1 * y4);
+
+        int sx2 = (int)(a2 * x1 + b2 * x2 + c2 * x3 + d2 * x4);
+        int sy2 = (int)(a2 * y1 + b2 * y2 + c2 * y3 + d2 * y4);
+
+        DrawLine(sx1, sy1, sx2, sy2, color);
+    }
+}
+
+void Framebuffer::DrawImage(int x1, int y1, Image* image) {
+    for (int y = 0; y < image->colorBuffer.height; y++) {
+        int sy = y1 + y;
+        for (int x = 0; x < image->colorBuffer.width; x++) {
+            int sx = x1 + x;
+            if (sx > colorBuffer.width || sy > colorBuffer.height) continue;
+            ((color_t*)colorBuffer.data)[sx + (sy * colorBuffer.width)] = ((color_t*)image->colorBuffer.data)[x + (y * image->colorBuffer.width)];
+        }
     }
 }
 
