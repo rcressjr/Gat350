@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)ThirdParty\SDL2-2.0.14\include;$(SolutionDir)ThirdParty\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,18 +151,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Source\Camera.cpp" />
     <ClCompile Include="..\Source\Framebuffer.cpp" />
     <ClCompile Include="..\Source\Image.cpp" />
     <ClCompile Include="..\Source\Main.cpp" />
+    <ClCompile Include="..\Source\Material.cpp" />
+    <ClCompile Include="..\Source\Plane.cpp" />
     <ClCompile Include="..\Source\PostProcess.cpp" />
     <ClCompile Include="..\Source\Renderer.cpp" />
+    <ClCompile Include="..\Source\Sampler.cpp" />
+    <ClCompile Include="..\Source\Scene.cpp" />
+    <ClCompile Include="..\Source\Sphere.cpp" />
+    <ClCompile Include="..\Source\Tracer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Source\Camera.h" />
     <ClInclude Include="..\Source\ColorBuffer.h" />
     <ClInclude Include="..\Source\Framebuffer.h" />
+    <ClInclude Include="..\Source\Geometry.h" />
     <ClInclude Include="..\Source\Image.h" />
+    <ClInclude Include="..\Source\Material.h" />
+    <ClInclude Include="..\Source\Plane.h" />
     <ClInclude Include="..\Source\PostProcess.h" />
+    <ClInclude Include="..\Source\Ray.h" />
     <ClInclude Include="..\Source\Renderer.h" />
+    <ClInclude Include="..\Source\Sampler.h" />
+    <ClInclude Include="..\Source\Scene.h" />
+    <ClInclude Include="..\Source\Sphere.h" />
+    <ClInclude Include="..\Source\Tracer.h" />
+    <ClInclude Include="..\Source\Types.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

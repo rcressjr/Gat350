@@ -2,8 +2,8 @@
 #include "Image.h"
 
 //#define SLOPE
-//#define DDA
-#define BRESENHAM
+#define DDA
+//#define BRESENHAM
 
 Framebuffer::Framebuffer(Renderer* renderer, int width, int height) {
     colorBuffer.width = width;
